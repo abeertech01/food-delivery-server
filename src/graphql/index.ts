@@ -1,6 +1,7 @@
 import { ApolloServer } from "@apollo/server"
 
 import prismaClient from "../lib/prismadb"
+import { User } from "./user"
 
 async function createApolloGraphQLServer() {
   // Create a new Apollo GraphQL Server
@@ -11,36 +12,13 @@ async function createApolloGraphQLServer() {
         say(name: String): String
       },
       type Mutation {
-        createUser(firstName: String!, lastName: String!, email: String!, password: String!): Boolean
+        ${User.mutations}
       }
     `, // Schema
     resolvers: {
       Query: {},
       Mutation: {
-        createUser: async (
-          _: any,
-          {
-            firstName,
-            lastName,
-            email,
-            password,
-          }: {
-            firstName: string
-            lastName: string
-            email: string
-            password: string
-          }
-        ) => {
-          await prismaClient.user.create({
-            data: {
-              firstName,
-              lastName,
-              email,
-              password,
-            },
-          })
-          return true
-        },
+        ...User.resolvers.mutations,
       },
     },
   })

@@ -17,6 +17,7 @@ model User {
   profileImageURL String? @map("profile_image_url")
   email           String  @unique
   password        String
+  salt            String
 
   @@map("users")
 }
