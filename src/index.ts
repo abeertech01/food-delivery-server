@@ -8,6 +8,7 @@ dotenv.config({
 })
 
 import createApolloGraphQLServer from "./graphql"
+import UserService from "./services/user"
 
 async function init() {
   const app = express()
@@ -27,7 +28,22 @@ async function init() {
     res.json({ message: "Server is up and running" })
   })
 
-  app.use("/graphql", expressMiddleware(await createApolloGraphQLServer()))
+  app.use(
+    "/graphql",
+    expressMiddleware(await createApolloGraphQLServer(), {
+      context: async ({ req }) => {
+        const token = req.headers["token"]
+
+        try {
+          const user = UserService.decodeJWTToken(token as string)
+
+          return { user }
+        } catch (error) {
+          return {}
+        }
+      },
+    })
+  )
 
   app.listen(PORT, () =>
     console.log(`Server is running on http://localhost:${PORT}`)

@@ -1,6 +1,29 @@
 import UserService, { CreateUserPayload } from "../../services/user"
 
-const queries = {}
+const queries = {
+  getUserToken: async (
+    _: any,
+    payload: { email: string; password: string }
+  ) => {
+    const token = await UserService.getUserToken({
+      email: payload.email,
+      password: payload.password,
+    })
+
+    // TODO: Error if token is not valid
+
+    return token
+  },
+  getCurrentLoggedInUser: async (_: any, parameters: any, context: any) => {
+    if (context && context.user) {
+      const id = context.user.id
+      const user = await UserService.getUserById(id)
+      return user
+    }
+
+    throw new Error("User is not authorized")
+  },
+}
 
 const mutations = {
   createUser: async (_: any, payload: CreateUserPayload) => {
